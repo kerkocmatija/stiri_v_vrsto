@@ -51,8 +51,9 @@ class Gui():
         # Narišemo črte na igralnem polju (ustvarimo igralno površino)
         self.narisi_okvir()
 
-        # Določimo, kaj se zgodi, ko uporabnik pritisne levi klik
+        # Določimo, kaj se zgodi, ko uporabnik pritisne določene tipke
         self.platno.bind('<Button-1>', self.platno_klik)
+        self.platno.bind('<Button-3>', self.platno_razveljavi)
 
         # Pričnemo igro
         self.zacni_igro()
@@ -61,11 +62,12 @@ class Gui():
         '''Nastavi stanje igre na 'konec igre'.'''
         if zmagovalec == IGRALEC_R:
             self.napis.set('Zmagal je RDEČI!')
+            self.obkrozi(stirka)
         elif zmagovalec == IGRALEC_Y:
             self.napis.set('Zmagal je RUMENI!')
+            self.obkrozi(stirka)
         else:
             self.napis.set('Igra je NEODLOČENA!')
-        self.obkrozi(stirka)
 
     def narisi_okvir(self):
         '''Nariše črte (okvir) na igralno povrčino.'''
@@ -90,6 +92,15 @@ class Gui():
                                 fill = 'red',
                                 width=0,
                                 tag=Gui.TAG_FIGURA)
+
+    def narisi_trenutni_polozaj(self):
+        polozaj = self.igra.polozaj
+        for (i, a) in enumerate(polozaj):
+            for (j, b) in enumerate(a):
+                if b == IGRALEC_R:
+                    self.narisi_R((i,j))
+                elif b == IGRALEC_Y:
+                    self.narisi_Y((i,j))
 
     def narisi_Y(self, p):
         d = Gui.VELIKOST_POLJA
@@ -164,6 +175,26 @@ class Gui():
                 else:
                     # Nihče ni na potezi
                     pass
+
+    def platno_razveljavi(self, event):
+        '''Razveljavimo zadnjo potezo in prikažemo prejšnje stanje.'''
+
+        # Razveljavimo prejšnjo potezo
+        self.igra.razveljavi()
+
+        # Pobrišemo vse figure iz igralne površine        
+        self.platno.delete(Gui.TAG_FIGURA)
+
+        # Narišemo novi (trenutni) položaj
+        self.narisi_trenutni_polozaj()
+
+        # Popravimo zgornji napis
+        if self.igra.na_potezi == IGRALEC_R:
+            self.napis.set('Na potezi je RDEČI!')
+            self.igralec_r.igraj()
+        elif self.igra.na_potezi == IGRALEC_Y:
+            self.napis.set('Na potezi je RUMENI!')
+            self.igralec_y.igraj()
     
     def povleci_potezo(self, p):
         igralec = self.igra.na_potezi

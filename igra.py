@@ -75,6 +75,10 @@ class Igra():
                 self.na_potezi = None
             return (zmagovalec, stirka, (i,poteze[i]))
 
+    def razveljavi(self):
+        '''Razveljavi potezo in se vrne v prejšnje stanje.'''
+        (self.polozaj, self.na_potezi) = self.zgodovina.pop()
+
     def shrani_polozaj(self):
         '''Shrani trenutni položaj igre, da se lahko vanj vrnemo
             s klicem metode 'razveljavi'.'''
