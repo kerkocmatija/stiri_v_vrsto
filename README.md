@@ -5,13 +5,13 @@ My Connect-Four game made in Python.
 Zaženete `connect4.py`.
 
 # Cilj
-Cilj projekta je izdelati delujočo igrico 'štiri v vrsto' ter še kakšno "podzvrst", ki jo lahko najdete na https://en.wikipedia.org/wiki/Connect_Four.
+Cilj projekta je izdelati delujočo igrico 'štiri v vrsto' ter še kakšno "podzvrst", ki jo lahko najdete na https://en.wikipedia.org/wiki/Connect_Four pod Rule variations.
 
 # Kratka razlaga
 V `connect4.py` je koda za uporabniški vmesnik, `igra.py` vsebuje logiko igre, `clovek.py` pa predstavlja igralca.
 
 # Trenutno stanje
-Logika igre je večinoma končana, igra bi trenutno za 2 igralca morala delovati brez problemov. Računalnika še za nasprotnika ni možno zbrati.
+Logika igre je večinoma končana, igra bi trenutno za 2 igralca morala delovati brez problemov. Računalnika še za nasprotnika ni možno izbrati.
 
 # Nekaj idej za v prihodnje
 Dodati je potrebno še možnosti `undo` ter `redo`.
