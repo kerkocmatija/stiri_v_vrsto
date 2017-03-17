@@ -77,7 +77,11 @@ class Igra():
 
     def razveljavi(self):
         '''Razveljavi potezo in se vrne v prejšnje stanje.'''
-        (self.polozaj, self.na_potezi) = self.zgodovina.pop()
+        if len(self.zgodovina) > 0:
+            (self.polozaj, self.na_potezi) = self.zgodovina.pop()
+            return (self.polozaj, self.na_potezi)
+        else:
+            return None
 
     def shrani_polozaj(self):
         '''Shrani trenutni položaj igre, da se lahko vanj vrnemo

@@ -93,8 +93,7 @@ class Gui():
                                 width=0,
                                 tag=Gui.TAG_FIGURA)
 
-    def narisi_trenutni_polozaj(self):
-        polozaj = self.igra.polozaj
+    def narisi_polozaj(self, polozaj):
         for (i, a) in enumerate(polozaj):
             for (j, b) in enumerate(a):
                 if b == IGRALEC_R:
@@ -180,21 +179,25 @@ class Gui():
         '''Razveljavimo zadnjo potezo in prikažemo prejšnje stanje.'''
 
         # Razveljavimo prejšnjo potezo
-        self.igra.razveljavi()
+        stanje_igre = self.igra.razveljavi()
 
-        # Pobrišemo vse figure iz igralne površine        
-        self.platno.delete(Gui.TAG_FIGURA)
+        if stanje_igre: # Uspešno smo razveljavili potezo
+            # Pobrišemo vse figure iz igralne površine        
+            self.platno.delete(Gui.TAG_FIGURA)
 
-        # Narišemo novi (trenutni) položaj
-        self.narisi_trenutni_polozaj()
+            # Narišemo novi (trenutni) položaj
+            self.narisi_polozaj(stanje_igre[0])
 
-        # Popravimo zgornji napis
-        if self.igra.na_potezi == IGRALEC_R:
-            self.napis.set('Na potezi je RDEČI!')
-            self.igralec_r.igraj()
-        elif self.igra.na_potezi == IGRALEC_Y:
-            self.napis.set('Na potezi je RUMENI!')
-            self.igralec_y.igraj()
+            # Popravimo zgornji napis
+            if self.igra.na_potezi == IGRALEC_R:
+                self.napis.set('Na potezi je RDEČI!')
+                self.igralec_r.igraj()
+            elif self.igra.na_potezi == IGRALEC_Y:
+                self.napis.set('Na potezi je RUMENI!')
+                self.igralec_y.igraj()
+        else:
+            # Smo na začetku 'zgodovine' (igre)
+            pass
     
     def povleci_potezo(self, p):
         igralec = self.igra.na_potezi
