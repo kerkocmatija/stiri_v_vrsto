@@ -49,6 +49,10 @@ class Igra():
         # Shranjujmo si zgodovino, da lahko uporabimo 'undo'
         self.zgodovina = []
 
+        # Števec, ki nam pove, katero potezo si ogledujemo
+        # Z njim lahko gremo v 'preteklost'
+        self.stevec = 0
+
     def kopija(self):
         '''Vrni kopijo te igre, brez zgodovine.'''
         # TODO
@@ -64,6 +68,8 @@ class Igra():
             # Poteza ni veljavna
             return None
         else:
+            if len(self.zgodovina) > self.stevec:
+                self.zgodovina = self.zgodovina[:self.stevec]
             self.shrani_polozaj()
             self.polozaj[i][poteze[i]] = self.na_potezi
             (zmagovalec, stirka) = self.stanje_igre()
@@ -77,8 +83,9 @@ class Igra():
 
     def razveljavi(self):
         '''Razveljavi potezo in se vrne v prejšnje stanje.'''
-        if len(self.zgodovina) > 0:
-            (self.polozaj, self.na_potezi) = self.zgodovina.pop()
+        if self.stevec > 0:
+            (self.polozaj, self.na_potezi) = self.zgodovina[self.stevec-1]
+            self.stevec -= 1
             return (self.polozaj, self.na_potezi)
         else:
             return None
@@ -88,6 +95,7 @@ class Igra():
             s klicem metode 'razveljavi'.'''
         p = [self.polozaj[i][:] for i in range(7)]
         self.zgodovina.append((p, self.na_potezi))
+        self.stevec += 1
 
     def stanje_igre(self):
         '''Vrne nam trenutno stanje igre. Možnosti so:
