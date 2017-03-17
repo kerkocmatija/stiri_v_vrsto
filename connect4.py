@@ -145,30 +145,6 @@ class Gui():
             self.platno.create_line(x3, y3, x4, y4,
                                     width=w,
                                     tag=Gui.TAG_FIGURA)
-##        else:
-##            a = (d * 2**0.5) / 4
-##            x1 = d/2 + i1*d - a
-##            x2 = d/2 + i1*d + a
-##            x3 = d/2 + (i2+1)*d - a
-##            x4 = d/2 + (i2+1)*d + a
-##
-##            y1 = 13*d/2 - (j1+1)*d + a
-##            y2 = 13*d/2 - (j1+1)*d - a
-##            y3 = 13*d/2 - j2*d + a
-##            y4 = 13*d/2 - j2*d - a
-##
-##            self.platno.create_line(x1, y1, x3, y3,
-##                                    width=w,
-##                                    tag=Gui.TAG_FIGURA)
-##            self.platno.create_line(x2, y2, x4, y4,
-##                                    width=w,
-##                                    tag=Gui.TAG_FIGURA)
-##            self.platno.create_line(x1, y1, x2, y2,
-##                                    width=w,
-##                                    tag=Gui.TAG_FIGURA)
-##            self.platno.create_line(x3, y3, x4, y4,
-##                                    width=w,
-##                                    tag=Gui.TAG_FIGURA)
 
     def platno_klik(self, event):
         (x,y) = (event.x, event.y)
