@@ -54,6 +54,7 @@ class Gui():
         # Določimo, kaj se zgodi, ko uporabnik pritisne določene tipke
         self.platno.bind('<Button-1>', self.platno_klik)
         self.platno.bind('<Button-3>', self.platno_razveljavi)
+        self.platno.bind('<Control-Button-1>', self.platno_uveljavi)
 
         # Pričnemo igro
         self.zacni_igro()
@@ -188,7 +189,7 @@ class Gui():
             # Narišemo novi (trenutni) položaj
             self.narisi_polozaj(stanje_igre[0])
 
-            # Popravimo zgornji napis
+            # Popravimo napis nad igralno površino
             if self.igra.na_potezi == IGRALEC_R:
                 self.napis.set('Na potezi je RDEČI!')
                 self.igralec_r.igraj()
@@ -197,6 +198,30 @@ class Gui():
                 self.igralec_y.igraj()
         else:
             # Smo na začetku 'zgodovine' (igre)
+            pass
+
+    def platno_uveljavi(self, event):
+        '''Uveljavimo zadnjo razveljavljeno potezo in se vrnemo v njeno stanje.'''
+
+        # Uveljavimo prejšnjo potezo
+        stanje_igre = self.igra.uveljavi()
+
+        if stanje_igre: # Uspešno smo uveljavili potezo
+            # Pobrišemo vse figure iz igralne površine
+            self.platno.delete(Gui.TAG_FIGURA)
+
+            # Narišemo novi (trenutni) položaj
+            self.narisi_polozaj(stanje_igre[0])
+
+            # Popravimo napis nad igralno površino
+            if self.igra.na_potezi == IGRALEC_R:
+                self.napis.set('Na potezi je RDEČI!')
+                self.igralec_r.igraj()
+            elif self.igra.na_potezi == IGRALEC_Y:
+                self.napis.set('Na potezi je RUMENI!')
+                self.igralec_y.igraj()
+        else:
+            # Smo na koncu 'zgodovine' (igre)
             pass
     
     def povleci_potezo(self, p):

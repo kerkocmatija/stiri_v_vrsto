@@ -120,6 +120,15 @@ class Igra():
         # Pravtako tudi zmagovalca ni, torej je rezultat neodločen
         return (NEODLOCENO, None)
 
+    def uveljavi(self):
+        '''Uveljavi zadnjo razveljavljeno potezo in se vrne v njeno stanje.'''
+        if self.stevec < len(self.zgodovina)-1: # -1 začasno, dokler ne dodam zadnje poteze
+            self.stevec += 1
+            (self.polozaj, self.na_potezi) = self.zgodovina[self.stevec]
+            return (self.polozaj, self.na_potezi)
+        else:
+            return None
+
     def veljavne_poteze(self):
         '''Vrne seznam veljavnih potez.'''
         poteze = []
