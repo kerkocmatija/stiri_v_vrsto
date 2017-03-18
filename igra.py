@@ -53,6 +53,10 @@ class Igra():
         # Z njim lahko gremo v 'preteklost'
         self.stevec = 0
 
+        # To je začasna rešitev, dokler ne najdem boljše
+        # Je zadnje stanje, če želiš `Redo`-jati do konca
+        self.zadnja = ([[PRAZNO]*6 for i in range(7)], self.na_potezi)
+
     def kopija(self):
         '''Vrni kopijo te igre, brez zgodovine.'''
         # TODO
@@ -79,6 +83,8 @@ class Igra():
             else:
                 # Igra se je zaključila
                 self.na_potezi = None
+            self.zadnja = ([self.polozaj[i][:] for i in range(7)],
+                           self.na_potezi)
             return (zmagovalec, stirka, (i,poteze[i]))
 
     def razveljavi(self):
@@ -125,6 +131,10 @@ class Igra():
         if self.stevec < len(self.zgodovina)-1: # -1 začasno, dokler ne dodam zadnje poteze
             self.stevec += 1
             (self.polozaj, self.na_potezi) = self.zgodovina[self.stevec]
+            return (self.polozaj, self.na_potezi)
+        elif self.stevec == len(self.zgodovina)-1:
+            self.stevec += 1
+            (self.polozaj, self.na_potezi) = self.zadnja
             return (self.polozaj, self.na_potezi)
         else:
             return None
