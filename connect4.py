@@ -1,4 +1,5 @@
 import tkinter # Uvozimo tkinter za uporabniški vmesnik
+from math import sqrt
 
 from igra import *
 from clovek import *
@@ -126,23 +127,30 @@ class Gui():
             self.platno.create_rectangle(x1, y1, x2, y2,
                                          width=w,
                                          tag=Gui.TAG_FIGURA)
-        else: # Diagonalni - popravi jih še (koti in oddaljenost na levi in desni)
-            a = (d * 2**0.5) / 4
-            x1 = d/2 + i1*d - a
-            x2 = d/2 + i1*d + a
-            x3 = d/2 + (i2+1)*d - a
-            x4 = d/2 + (i2+1)*d + a
+        else: # Diagonalni - popravi jih še v kotih
+            # Najprej izračunamo središče S = (xt1,yt1)
+            # najbolj levega kvadratka
+            xt1 = (i1+1)*d
+            yt1 = (6-j1)*d
 
-            if j1 > j2:
-                y1 = 13*d/2 - (j1+1)*d + a
-                y2 = 13*d/2 - (j1+1)*d - a
-                y3 = 13*d/2 - j2*d + a
-                y4 = 13*d/2 - j2*d - a
+            # Zarotiramo kvadrat za pi/4 v levo
+            r = sqrt(2)*d/2
+            x1 = xt1 - r
+            y1 = yt1
+            x2 = xt1
+            # Če je štirka desno dol samo preslikamo y2 čez S
+            y2 = yt1 + r if j1 < j2 else yt1 - r
+
+            dxy = (sqrt(2) + 6) * d / 2
+            x3 = x1 + dxy
+            x4 = x2 + dxy
+
+            if j1 < j2:
+                y3 = y1 - dxy
+                y4 = y2 - dxy
             else:
-                y1 = 13*d/2 - j1*d - a
-                y2 = 13*d/2 - j1*d + a
-                y3 = 13*d/2 - (j2+1)*d - a
-                y4 = 13*d/2 - (j2+1)*d + a
+                y3 = y1 + dxy
+                y4 = y2 + dxy
 
             self.platno.create_line(x1, y1, x3, y3,
                                     width=w,
