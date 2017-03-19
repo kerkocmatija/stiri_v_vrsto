@@ -180,14 +180,14 @@ class Gui():
         '''Razveljavimo zadnjo potezo in prikažemo prejšnje stanje.'''
 
         # Razveljavimo prejšnjo potezo
-        stanje_igre = self.igra.razveljavi()
+        novo_stanje = self.igra.razveljavi()
 
-        if stanje_igre: # Uspešno smo razveljavili potezo
+        if novo_stanje: # Uspešno smo razveljavili potezo
             # Pobrišemo vse figure iz igralne površine        
             self.platno.delete(Gui.TAG_FIGURA)
 
             # Narišemo novi (trenutni) položaj
-            self.narisi_polozaj(stanje_igre[0])
+            self.narisi_polozaj(novo_stanje[0])
 
             # Popravimo napis nad igralno površino
             if self.igra.na_potezi == IGRALEC_R:
@@ -204,14 +204,14 @@ class Gui():
         '''Uveljavimo zadnjo razveljavljeno potezo in se vrnemo v njeno stanje.'''
 
         # Uveljavimo prejšnjo potezo
-        stanje_igre = self.igra.uveljavi()
+        novo_stanje = self.igra.uveljavi()
 
-        if stanje_igre: # Uspešno smo uveljavili potezo
+        if novo_stanje: # Uspešno smo uveljavili potezo
             # Pobrišemo vse figure iz igralne površine
             self.platno.delete(Gui.TAG_FIGURA)
 
             # Narišemo novi (trenutni) položaj
-            self.narisi_polozaj(stanje_igre[0])
+            self.narisi_polozaj(novo_stanje[0])
 
             # Popravimo napis nad igralno površino
             if self.igra.na_potezi == IGRALEC_R:
@@ -220,6 +220,9 @@ class Gui():
             elif self.igra.na_potezi == IGRALEC_Y:
                 self.napis.set('Na potezi je RUMENI!')
                 self.igralec_y.igraj()
+            else:
+                (zmagovalec, stirka) = self.igra.stanje_igre()
+                self.koncaj_igro(zmagovalec, stirka)
         else:
             # Smo na koncu 'zgodovine' (igre)
             pass

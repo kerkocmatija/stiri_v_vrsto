@@ -155,21 +155,3 @@ class Igra():
                 # V stolpcu ni bilo prostih mest
                 poteze.append(NEVELJAVNO)
         return poteze
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
