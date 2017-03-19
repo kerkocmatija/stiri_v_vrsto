@@ -16,6 +16,9 @@ class Gui():
     # Oznaka za črte, ki sestavljajo okvir
     TAG_OKVIR = 'okvir'
 
+    # Oznaka za gumbe, ki so na voljo v meniju levo od igralne površine
+    TAG_GUMB = 'gumb'
+
     # Velikost polja
     VELIKOST_POLJA = 100
 
@@ -34,20 +37,30 @@ class Gui():
         menu = tkinter.Menu(master)
         master.config(menu=menu)
 
-        # Podmenu 'Igra'
+        # Podmenu "Igra"
         menu_igra = tkinter.Menu(menu)
         menu.add_cascade(label='Igra', menu=menu_igra)
         menu_igra.add_command(label='Nova igra', command=self.zacni_igro)
+
+        # Podmenu "Uredi"
+        menu_uredi = tkinter.Menu(menu)
+        menu.add_cascade(label='Uredi', menu=menu_uredi)
+        menu_uredi.add_command(label='Razveljavi', command=self.platno_razveljavi)
+        menu_uredi.add_command(label='Uveljavi', command=self.platno_uveljavi)
 
         # Napis, ki prikazuje stanje igre
         self.napis = tkinter.StringVar(master, value='Dobrodošli v 4 v vrsto!')
         tkinter.Label(master, textvariable=self.napis).grid(row=0, column=0)
 
-        # Igralno območje
+        ###############################################################
+        ###############################################################
+        ##                      IGRALNO OBMOČJE                      ##
+        ###############################################################
+        ###############################################################
         self.platno = tkinter.Canvas(master,
                                      width=8*Gui.VELIKOST_POLJA,
                                      height=7*Gui.VELIKOST_POLJA)
-        self.platno.grid(row=1, column=0)
+        self.platno.grid(row=1, column=1)
 
         # Narišemo črte na igralnem polju (ustvarimo igralno površino)
         self.narisi_okvir()
@@ -56,6 +69,34 @@ class Gui():
         self.platno.bind('<Button-1>', self.platno_klik)
         self.platno.bind('<Button-3>', self.platno_razveljavi)
         self.platno.bind('<Control-Button-1>', self.platno_uveljavi)
+
+        ###############################################################
+        ###############################################################
+        ##                    UREJEVALNO OBMOČJE                     ##
+        ###############################################################
+        ###############################################################
+        self.platno_menu = tkinter.Canvas(master,
+                                          width=4*Gui.VELIKOST_POLJA,
+                                          height=7*Gui.VELIKOST_POLJA)
+        #self.platno_menu.config(bg='black') # Za čas testiranja
+        self.platno_menu.grid(row=1, column=0) # Uporabi sticky=tkinter.W itd.
+
+        gumb_zapri = tkinter.Button(master, text='Zapri',
+                                    command=lambda: self.zapri_okno(master),
+                                    anchor = tkinter.CENTER, width=20)
+        self.platno_menu.create_window(4*Gui.VELIKOST_POLJA-10,
+                                       13*Gui.VELIKOST_POLJA/2-10,
+                                       anchor=tkinter.SE,
+                                       window=gumb_zapri,
+                                       tag=Gui.TAG_GUMB)
+        gumb_nazaj = tkinter.Button(master, text='Nazaj',
+                                    command=lambda: self.pojdi_nazaj(),
+                                    anchor = tkinter.CENTER, width=20)
+        self.platno_menu.create_window(10,
+                                       13*Gui.VELIKOST_POLJA/2-10,
+                                       anchor=tkinter.SW,
+                                       window=gumb_nazaj,
+                                       tag=Gui.TAG_GUMB)
 
         # Pričnemo igro
         self.zacni_igro()
@@ -184,7 +225,7 @@ class Gui():
                     # Nihče ni na potezi
                     pass
 
-    def platno_razveljavi(self, event):
+    def platno_razveljavi(self, event=None):
         '''Razveljavimo zadnjo potezo in prikažemo prejšnje stanje.'''
 
         # Razveljavimo prejšnjo potezo
@@ -208,7 +249,7 @@ class Gui():
             # Smo na začetku 'zgodovine' (igre)
             pass
 
-    def platno_uveljavi(self, event):
+    def platno_uveljavi(self, event=None):
         '''Uveljavimo zadnjo razveljavljeno potezo in se vrnemo v njeno stanje.'''
 
         # Uveljavimo prejšnjo potezo
@@ -234,6 +275,10 @@ class Gui():
         else:
             # Smo na koncu 'zgodovine' (igre)
             pass
+
+    def pojdi_nazaj(self):
+        # TODO
+        pass
     
     def povleci_potezo(self, p):
         igralec = self.igra.na_potezi
