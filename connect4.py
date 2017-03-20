@@ -291,11 +291,15 @@ class Gui():
         else:
             # Premisli še, če res potrebuješ cel p, ali lahko spremeniš,
             # da bodo funkcije vračale le x koordinato
-            (zmagovalec, stirka, p1) = t # Tukaj je p1 dejanska poteza
-            if igralec == IGRALEC_R:
-                self.narisi_R(p1)
-            elif igralec == IGRALEC_Y:
-                self.narisi_Y(p1)
+            (zmagovalec, stirka, p1, je_popout) = t # Tukaj je p1 dejanska poteza
+            if je_popout:
+                self.platno.delete(Gui.TAG_FIGURA)
+                self.narisi_polozaj(self.igra.polozaj)
+            else:
+                if igralec == IGRALEC_R:
+                    self.narisi_R(p1)
+                elif igralec == IGRALEC_Y:
+                    self.narisi_Y(p1)
 
             # Sedaj pa preverimo, kako se bo igra nadaljevala
             if zmagovalec == NI_KONEC:

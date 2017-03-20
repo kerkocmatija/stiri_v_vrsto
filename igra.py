@@ -85,7 +85,8 @@ class Igra():
                 self.na_potezi = None
             self.zadnja = ([self.polozaj[i][:] for i in range(7)],
                            self.na_potezi)
-            return (zmagovalec, stirka, (i,poteze[i]))
+            # Na koncu return dodamo False, zaradi kompatibilnosti s popout.py
+            return (zmagovalec, stirka, (i,poteze[i]), False)
 
     def razveljavi(self):
         '''Razveljavi potezo in se vrne v prejšnje stanje.'''

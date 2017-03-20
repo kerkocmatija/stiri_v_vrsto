@@ -69,6 +69,7 @@ class Igra():
         # Seznam veljavnih potez in stolpcev, kjer lahko odstranimo 1 žeton
         (poteze, poteze_popout) = self.veljavne_poteze()
         veljavna_poteza = True # Poteza je trenutno se veljavna
+        je_popout = False # Gre za popout potezo
         if (j == 5) and poteze_popout[i]: # Zaenkrat je to pogoj za odstranit
             if len(self.zgodovina) > self.stevec:
                 self.zgodovina = self.zgodovina[:self.stevec]
@@ -76,6 +77,7 @@ class Igra():
             # Odstranimo spodnji žeton
             del self.polozaj[i][0]
             self.polozaj[i].append(0)
+            je_popout = True
         elif (poteze[i] == NEVELJAVNO) or (self.na_potezi == None):
             # Poteza ni veljavna
             veljavna_poteza = False
@@ -95,8 +97,7 @@ class Igra():
                 self.na_potezi = None
             self.zadnja = ([self.polozaj[i][:] for i in range(7)],
                            self.na_potezi)
-            print(self.polozaj)
-            return (zmagovalec, stirka, (i,poteze[i]))
+            return (zmagovalec, stirka, (i,poteze[i]), je_popout)
 
     def razveljavi(self):
         '''Razveljavi potezo in se vrne v prejšnje stanje.'''
