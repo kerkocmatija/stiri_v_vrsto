@@ -3,6 +3,7 @@ from math import sqrt
 
 from igra import *
 #from popout import *
+#from five_row import *
 from clovek import *
 
 #########################
@@ -125,6 +126,20 @@ class Gui():
             self.platno.create_line(d/2, d/2 + i*d,
                                     15*d/2, d/2 + i*d,
                                     tag=Gui.TAG_OKVIR)
+
+        for i in range(6):
+            barva1 = 'yellow' if i%2 == 0 else 'red'
+            barva2 = 'red' if i%2 == 0 else 'yellow'
+            self.platno.create_line(d/4, d/2 + d/4 + i*d,
+                                    d/4, d/2 + 3*d/4 + i*d,
+                                    tag=Gui.TAG_OKVIR,
+                                    fill=barva1,
+                                    width=5)
+            self.platno.create_line(8*d - d/4, d/2 + d/4 + i*d,
+                                    8*d - d/4, d/2 + 3*d/4 + i*d,
+                                    tag=Gui.TAG_OKVIR,
+                                    fill=barva2,
+                                    width=5)
 
     def narisi_R(self, p):
         d = Gui.VELIKOST_POLJA
