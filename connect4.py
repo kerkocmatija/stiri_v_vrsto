@@ -2,6 +2,7 @@ import tkinter # Uvozimo tkinter za uporabniški vmesnik
 from math import sqrt
 
 from igra import *
+#from popout import *
 from clovek import *
 
 #########################
