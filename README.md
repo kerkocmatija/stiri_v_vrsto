@@ -22,3 +22,8 @@ Dodati nameravam tudi "števec", ki bi prikazoval število zmag vsakega igralca 
 
 # Pop Out
 Trenutno je primarna variacija igre, ki si jo oglejujem, t.i. Pop Out. Tukaj bi verjetno dodal, da Control-B1 poizkusi odstraniti krogec, če je le-to veljavna poteza. Spremeniti bi moral tudi funkcijo `veljavne_poteze`, ki se nahaja v logiki igre, saj trenuten zapis ne omogoča dodatnih kriterijev. Ena izmed opcij bi verjetno bila, da se doda za vsak stolpec še "indikator", ki bi povedal, če je možno izvesti dodatno funkcijo (t.j. odstraniti spodnji krogec).
+
+# Nekaj nepravilnih oziroma pomanjkljivih zadev
+1. Logika pri Pop Out še ne deluje kot bi morala. Če je tabla polna, je igre konec, čeprav lahko odstraniš kakšen žeton iz spodnje vrstice.
+2. Pri 5 v vrsto, če imaš 5 v vrsto po diagonali, ti obkroži le 4.
+3. Tipke za Undo / Redo.
