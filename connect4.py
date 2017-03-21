@@ -2,8 +2,8 @@ import tkinter # Uvozimo tkinter za uporabniški vmesnik
 from math import sqrt
 
 from igra import *
-#from popout import *
-#from five_row import *
+from popout import Popout
+from five_row import Five_row
 from clovek import *
 
 #########################
@@ -31,6 +31,7 @@ class Gui():
         self.igralec_r = None # Objekt, ki igra rdeče krogce
         self.igralec_y = None # Objekt, ki igra rumene krogce
         self.igra = None # Objekt, ki predstavlja igro
+        self.tip = '4inarow' # Katero igro igramo
         
         # Če uporabnik zapre okno, naj se pokliče self.zapri_okno
         master.protocol('WM_DELETE_WINDOW', lambda: self.zapri_okno(master))
@@ -43,6 +44,12 @@ class Gui():
         menu_igra = tkinter.Menu(menu)
         menu.add_cascade(label='Igra', menu=menu_igra)
         menu_igra.add_command(label='Nova igra', command=self.zacni_igro)
+        menu_igra.add_command(label='Stiri v vrsto',
+                              command=lambda: self.nastavi_tip('4inarow'))
+        menu_igra.add_command(label='Pet v vrsto',
+                              command=lambda: self.nastavi_tip('5inarow'))
+        menu_igra.add_command(label='Pop out',
+                              command=lambda: self.nastavi_tip('popout'))
 
         # Podmenu "Uredi"
         menu_uredi = tkinter.Menu(menu)
@@ -170,6 +177,10 @@ class Gui():
                                 fill = 'yellow',
                                 width=0,
                                 tag=Gui.TAG_FIGURA)
+
+    def nastavi_tip(self, ime):
+        self.tip = ime
+        self.zacni_igro()
 
     def obkrozi(self, stirka):
         w = 5
@@ -348,7 +359,12 @@ class Gui():
         self.platno.delete(Gui.TAG_FIGURA)
 
         # Ustvarimo novo igro
-        self.igra = Igra()
+        if self.tip == '4inarow':
+            self.igra = Igra()
+        elif self.tip == '5inarow':
+            self.igra = Five_row()
+        else:
+            self.igra = Popout()
 
         # Rdeči je prvi na potezi
         self.napis.set('Na potezi je RDEČI.')

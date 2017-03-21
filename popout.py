@@ -25,7 +25,7 @@ def nasprotnik(igralec):
         # napaki (če bo itak takoj crknil, potem assert ni potreben).
         assert False, "neveljaven nasprotnik"
 
-class Igra():
+class Popout():
     # Tabela vseh možnih zmagovalnih kombinacij 4 v vrsto
     stirke = []
     for i in range(7):
@@ -122,7 +122,7 @@ class Igra():
             - (NEODLOCENO, None), če je igre konec in je neodločeno,
             - (NI_KONEC, None), če je igra še vedno v teku.'''
         # Preverimo najprej, če obstaja kakšna zmagovalna štirka
-        for s in Igra.stirke:
+        for s in Popout.stirke:
             ((i1,j1),(i2,j2),(i3,j3),(i4,j4)) = s
             barva = self.polozaj[i1][j1]
             if (barva != PRAZNO) and (barva == self.polozaj[i2][j2] == self.polozaj[i3][j3] == self.polozaj[i4][j4]):
