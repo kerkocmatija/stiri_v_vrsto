@@ -2,8 +2,9 @@ import threading
 
 import rand_algoritem
 
-############################################
-## Igralec računalnik
+########################
+## IGRALEC RAČUNALNIK ##
+########################
 
 class Racunalnik():
     def __init__(self, gui, algoritem):
@@ -38,7 +39,7 @@ class Racunalnik():
             self.gui.platno.after(100, self.preveri_potezo)
 
     def prekini(self):
-        # To metodo pokliče GUI, če je potrebno prekiniti razmišljanje
+        '''Metodo pokliče GUI, če je potrebno prekiniti razmišljanje.'''
         if self.mislec:
             # Algoritmu sporočimo, da mora nehati z razmišljanjem
             self.algoritem.prekini()
