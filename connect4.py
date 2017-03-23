@@ -5,6 +5,8 @@ from igra import *
 from popout import Popout
 from five_row import Five_row
 from clovek import *
+from racunalnik import *
+from rand_algoritem import *
 
 #########################
 ## UPORABNIŠKI VMESNIK ##
@@ -517,7 +519,8 @@ class Gui():
 
         # Dodamo igralce
         self.igralec_r = Clovek(self)
-        self.igralec_y = Clovek(self)
+        #self.igralec_y = Clovek(self)
+        self.igralec_y = Racunalnik(self, rand_alg())
 
         # Pobrišemo vse figure iz igralne površine        
         self.platno.delete(Gui.TAG_FIGURA)

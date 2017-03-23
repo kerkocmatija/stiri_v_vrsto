@@ -59,8 +59,11 @@ class Igra():
 
     def kopija(self):
         '''Vrni kopijo te igre, brez zgodovine.'''
-        # TODO
-        pass
+        # Potrebujemo, da se ne rišejo poteze, ko računalnik razmišlja
+        k = Igra()
+        k.polozaj = [self.polozaj[i][:] for i in range(7)]
+        k.na_potezi = self.na_potezi
+        return k
 
     def povleci_potezo(self, p):
         '''Povleci potezo p, če je veljavna, sicer ne naredi nič.
