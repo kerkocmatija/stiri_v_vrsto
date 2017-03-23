@@ -10,6 +10,11 @@ from clovek import *
 ## UPORABNIŠKI VMESNIK ##
 #########################
 
+# Najboljše, če se ne spreminja preveč, ker izgleda najlepše pri teh številkah
+MIN_SIRINA = 500
+MIN_VISINA = 555
+ZVP = 100 # Zacetna velikost polja
+
 class Gui():
     # To so vsi grafični elementi v self.platno, ki 'pripadajo'
     # igralcema, torej krožci, ki so bili igrani
@@ -21,17 +26,25 @@ class Gui():
     # Oznaka za gumbe, ki so na voljo v meniju levo od igralne površine
     TAG_GUMB = 'gumb'
 
-    # Velikost polja
-    VELIKOST_POLJA = 100
+    # Oznaka za spremenljive dele na platno_menu
+    TAG_SPREMENLJIVI = 'spremenljivi'
 
-    # Razdalja med okvirjem in figuro
-    VELIKOST_GAP = 5
+    # Velikost okvirja za stranski menu
+    OKVIR = 5
+
+    # Visina in sirina platna z rezultatom itd.
+    # ODSVETUJEM SPREMINJANJE
+    VISINA_PLATNO_MENU = 0.55 * MIN_VISINA
+    SIRINA_PLATNO_MENU = 0.8 * MIN_SIRINA - 3*OKVIR
 
     def __init__(self, master):
         self.igralec_r = None # Objekt, ki igra rdeče krogce
         self.igralec_y = None # Objekt, ki igra rumene krogce
         self.igra = None # Objekt, ki predstavlja igro
         self.tip = '4inarow' # Katero igro igramo
+        self.VELIKOST_POLJA = ZVP # Velikost polja
+        self.VELIKOST_GAP = self.VELIKOST_POLJA / 20 # Razdalja med okvirjem in figuro
+        self.rezultat = [0, 0] # Trenutni rezultat
         
         # Če uporabnik zapre okno, naj se pokliče self.zapri_okno
         master.protocol('WM_DELETE_WINDOW', lambda: self.zapri_okno(master))
@@ -43,7 +56,8 @@ class Gui():
         # Podmenu "Igra"
         menu_igra = tkinter.Menu(menu)
         menu.add_cascade(label='Igra', menu=menu_igra)
-        menu_igra.add_command(label='Nova igra', command=self.zacni_igro)
+        menu_igra.add_command(label='Nova igra', command=self.nova_igra)
+        menu_igra.add_command(label='Naslednja igra', command=self.naslednja_igra)
         menu_igra.add_command(label='Stiri v vrsto',
                               command=lambda: self.nastavi_tip('4inarow'))
         menu_igra.add_command(label='Pet v vrsto',
@@ -57,9 +71,9 @@ class Gui():
         menu_uredi.add_command(label='Razveljavi', command=self.platno_razveljavi)
         menu_uredi.add_command(label='Uveljavi', command=self.platno_uveljavi)
 
-        # Napis, ki prikazuje stanje igre
-        self.napis = tkinter.StringVar(master, value='Dobrodošli v 4 v vrsto!')
-        tkinter.Label(master, textvariable=self.napis).grid(row=0, column=0)
+##        # Napis, ki prikazuje stanje igre
+##        self.napis = tkinter.StringVar(master, value='Dobrodošli v 4 v vrsto!')
+##        tkinter.Label(master, textvariable=self.napis).pack()
 
         ###############################################################
         ###############################################################
@@ -67,64 +81,120 @@ class Gui():
         ###############################################################
         ###############################################################
         self.platno = tkinter.Canvas(master,
-                                     width=8*Gui.VELIKOST_POLJA,
-                                     height=7*Gui.VELIKOST_POLJA)
-        self.platno.grid(row=1, column=1)
+                                     width=8*self.VELIKOST_POLJA,
+                                     height=7*self.VELIKOST_POLJA)
+        self.platno.pack(fill=tkinter.BOTH, expand=1, side=tkinter.RIGHT)
 
         # Narišemo črte na igralnem polju (ustvarimo igralno površino)
         self.narisi_okvir()
 
         # Določimo, kaj se zgodi, ko uporabnik pritisne določene tipke
         self.platno.bind('<Button-1>', self.platno_klik)
-        self.platno.bind('<Button-3>', self.platno_razveljavi)
-        self.platno.bind('<Control-Button-1>', self.platno_uveljavi)
+        self.platno.bind_all('<Control-z>', self.platno_razveljavi)
+        self.platno.bind_all('<Control-y>', self.platno_uveljavi)
+        self.platno.bind('<Configure>', self.spremeni_velikost)
 
         ###############################################################
         ###############################################################
         ##                    UREJEVALNO OBMOČJE                     ##
         ###############################################################
         ###############################################################
-        self.platno_menu = tkinter.Canvas(master,
-                                          width=4*Gui.VELIKOST_POLJA,
-                                          height=7*Gui.VELIKOST_POLJA)
-        #self.platno_menu.config(bg='black') # Za čas testiranja
-        self.platno_menu.grid(row=1, column=0) # Uporabi sticky=tkinter.W itd.
+        # Dodamo frame, kamor bomo postavili platno z rezultatom
+        # ter meni z možnostmi
+        self.frame1 = tkinter.Frame(master,
+                                    width=0.8 * MIN_SIRINA,
+                                    height=MIN_VISINA,
+                                    relief=tkinter.GROOVE,
+                                    borderwidth=Gui.OKVIR)
+        self.frame1.pack(side=tkinter.LEFT, anchor=tkinter.NW)
+        self.frame1.grid_propagate(0)
 
-        gumb_zapri = tkinter.Button(master, text='Zapri',
-                                    command=lambda: self.zapri_okno(master),
-                                    anchor = tkinter.CENTER, width=20)
-        self.platno_menu.create_window(4*Gui.VELIKOST_POLJA-10,
-                                       13*Gui.VELIKOST_POLJA/2-10,
-                                       anchor=tkinter.SE,
-                                       window=gumb_zapri,
-                                       tag=Gui.TAG_GUMB)
-        gumb_nazaj = tkinter.Button(master, text='Nazaj',
-                                    command=lambda: self.pojdi_nazaj(),
-                                    anchor = tkinter.CENTER, width=20)
-        self.platno_menu.create_window(10,
-                                       13*Gui.VELIKOST_POLJA/2-10,
-                                       anchor=tkinter.SW,
-                                       window=gumb_nazaj,
-                                       tag=Gui.TAG_GUMB)
+        # Narišemo platno
+        self.platno_menu = tkinter.Canvas(self.frame1,
+                                          width=Gui.SIRINA_PLATNO_MENU,
+                                          height=Gui.VISINA_PLATNO_MENU)
+        self.platno_menu.config(bg='black') # Za čas testiranja
+        self.platno_menu.grid(row=0, column=0, columnspan=7, sticky=tkinter.NW)
+
+        # Dodamo možnosti
+        self.gumb_nova_igra = tkinter.Button(self.frame1, text='Nova igra',
+                                             width=int(0.4*MIN_SIRINA/7.25),
+                                             command=self.nova_igra)
+        self.gumb_nova_igra.grid(row=2, column=2, columnspan=3)
+        self.gumb_naslednja_igra = tkinter.Button(self.frame1, text='Naslednja igra',
+                                                  width=int(0.4*MIN_SIRINA/7.25),
+                                                  command=self.naslednja_igra)
+        self.gumb_naslednja_igra.grid(row=4, column=2, columnspan=3)
+        self.gumb_razveljavi = tkinter.Button(self.frame1, text='Razveljavi',
+                                              width=int(0.4*MIN_SIRINA/7.25),
+                                              command=self.platno_razveljavi)
+        self.gumb_razveljavi.grid(row=6, column=2, columnspan=3)
+        self.gumb_uveljavi = tkinter.Button(self.frame1, text='Uveljavi',
+                                            width=int(0.4*MIN_SIRINA/7.25),
+                                            command=self.platno_uveljavi)
+        self.gumb_uveljavi.grid(row=8, column=2, columnspan=3)
+        self.gumb_nazaj = tkinter.Button(self.frame1, text='Nazaj',
+                                         width=int(0.3*0.8*MIN_SIRINA/7.25),
+                                         command=self.pojdi_nazaj)
+        self.gumb_nazaj.grid(row=10, column=1, columnspan=2)
+        self.gumb_izhod = tkinter.Button(self.frame1, text='Izhod',
+                                         width=int(0.3*0.8*MIN_SIRINA/7.25),
+                                         command=lambda: self.zapri_okno(master))
+        self.gumb_izhod.grid(row=10, column=4, columnspan=2)
+
+        # Nastavimo velikosti vrstic in stolpcev za željen izgled
+        (col_n, row_n) = self.frame1.grid_size()
+        for col in range(col_n):
+            z = 0.8 * MIN_SIRINA
+            a = 0.1 * z
+            if col % (col_n-1) == 0:
+                self.frame1.grid_columnconfigure(col, minsize=a)
+            elif col in [1, 2, 4, 5]:
+                self.frame1.grid_columnconfigure(col, minsize=(z/4-a))
+            else:
+                self.frame1.grid_columnconfigure(col, minsize=(2*a))
+
+        for row in range(row_n):
+            x = (0.45*MIN_VISINA-100)/30
+            if row in [1, 3, 7]:
+                self.frame1.grid_rowconfigure(row, minsize=x)
+            elif row == 5:
+                self.frame1.grid_rowconfigure(row, minsize=(4*x))
+            elif row == 9:
+                self.frame1.grid_rowconfigure(row, minsize=(8*x))
+
+        # Narišemo figure za platno_menu
+        # Najprej nespremenljiv del
+        self.platno_menu.create_text(10, 10, text='Rdeči',
+                                     fill='red', anchor=tkinter.NW,
+                                     font=('Helvetica', '{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                           'bold'))
+        self.platno_menu.create_text(Gui.SIRINA_PLATNO_MENU-10, 10,
+                                     text='Rumeni', fill='yellow',
+                                     anchor=tkinter.NE,
+                                     font=('Helvetica', '{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                           'bold'))
 
         # Pričnemo igro
         self.zacni_igro()
 
     def koncaj_igro(self, zmagovalec, stirka):
         '''Nastavi stanje igre na 'konec igre'.'''
+        self.narisi_platno_menu(zmagovalec)
         if zmagovalec == IGRALEC_R:
-            self.napis.set('Zmagal je RDEČI!')
+            #self.napis.set('Zmagal je RDEČI!')
             self.obkrozi(stirka)
         elif zmagovalec == IGRALEC_Y:
-            self.napis.set('Zmagal je RUMENI!')
+            #self.napis.set('Zmagal je RUMENI!')
             self.obkrozi(stirka)
         else:
-            self.napis.set('Igra je NEODLOČENA!')
+            pass
+            #self.napis.set('Igra je NEODLOČENA!')
 
     def narisi_okvir(self):
         '''Nariše črte (okvir) na igralno povrčino.'''
         self.platno.delete(Gui.TAG_OKVIR)
-        d = Gui.VELIKOST_POLJA
+        d = self.VELIKOST_POLJA
         for i in range(8):
             self.platno.create_line(d/2 + i*d, d/2,
                                     d/2 + i*d, 13*d/2,
@@ -149,17 +219,85 @@ class Gui():
                                     width=5)
 
     def narisi_R(self, p):
-        d = Gui.VELIKOST_POLJA
+        d = self.VELIKOST_POLJA
         x = (p[0] + 1) * d
         y = (6 - p[1]) * d
-        gap = Gui.VELIKOST_GAP
+        gap = self.VELIKOST_GAP
         self.platno.create_oval(x - d/2 + gap, y - d/2 + gap,
                                 x + d/2 - gap, y + d/2 - gap,
                                 fill = 'red',
                                 width=0,
                                 tag=Gui.TAG_FIGURA)
 
-    def narisi_polozaj(self, polozaj):
+    def narisi_platno_menu(self, zmagovalec=None):
+        self.platno_menu.delete(Gui.TAG_SPREMENLJIVI)
+        dy = 5 * Gui.VISINA_PLATNO_MENU / 30
+        dx = 0.15 * Gui.VISINA_PLATNO_MENU
+        self.platno_menu.create_text(10+dx, 10+dy,
+                                     text='{0}'.format(self.rezultat[0]),
+                                     fill='white', anchor=tkinter.NW,
+                                     font=('Helvetica','{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                           'bold'),
+                                     tag=Gui.TAG_SPREMENLJIVI)
+        self.platno_menu.create_text(Gui.SIRINA_PLATNO_MENU-10-dx, 10+dy,
+                                     text='{0}'.format(self.rezultat[1]),
+                                     fill='white', anchor=tkinter.NE,
+                                     font=('Helvetica','{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                           'bold'),
+                                     tag=Gui.TAG_SPREMENLJIVI)
+        if zmagovalec==NEODLOCENO:
+            # Izid je neodločen
+            self.platno_menu.create_text(Gui.SIRINA_PLATNO_MENU / 2, 10 + 2.5*dy,
+                                         text='Konec igre!',
+                                         fill='white', anchor=tkinter.N,
+                                         font=('Helvetica','{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                               'bold'),
+                                         tag=Gui.TAG_SPREMENLJIVI)
+            self.platno_menu.create_text(Gui.SIRINA_PLATNO_MENU / 2, 10 + 3.5*dy,
+                                         text='Izid je:',
+                                         fill='white', anchor=tkinter.N,
+                                         font=('Helvetica','{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                               'bold'),
+                                         tag=Gui.TAG_SPREMENLJIVI)
+            self.platno_menu.create_text(Gui.SIRINA_PLATNO_MENU / 2, 10 + 4.5*dy,
+                                         text='NEODLOČEN',
+                                         fill='white', anchor=tkinter.N,
+                                         font=('Helvetica','{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                               'bold'),
+                                         tag=Gui.TAG_SPREMENLJIVI)
+        elif zmagovalec:
+            # Imamo zmagovalca
+            self.platno_menu.create_text(Gui.SIRINA_PLATNO_MENU / 2, 10 + 2.5*dy,
+                                         text='Konec igre!',
+                                         fill='white', anchor=tkinter.N,
+                                         font=('Helvetica','{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                               'bold'),
+                                         tag=Gui.TAG_SPREMENLJIVI)
+            self.platno_menu.create_text(Gui.SIRINA_PLATNO_MENU / 2, 10 + 3.5*dy,
+                                         text='Zmagovalec je:',
+                                         fill='white', anchor=tkinter.N,
+                                         font=('Helvetica','{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                               'bold'),
+                                         tag=Gui.TAG_SPREMENLJIVI)
+            self.platno_menu.create_text(Gui.SIRINA_PLATNO_MENU / 2, 10 + 4.5*dy,
+                                         text='{0}'.format('RDEČI' if zmagovalec==IGRALEC_R else 'RUMENI'),
+                                         fill='{0}'.format('red' if zmagovalec==IGRALEC_R else 'yellow'), anchor=tkinter.N,
+                                         font=('Helvetica','{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                               'bold'),
+                                         tag=Gui.TAG_SPREMENLJIVI)
+        else:
+            self.platno_menu.create_text(Gui.SIRINA_PLATNO_MENU / 2, 10 + 2.5*dy,
+                                         text='Na potezi je',
+                                         fill='white', anchor=tkinter.N,
+                                         font=('Helvetica','{0}'.format(int(Gui.VISINA_PLATNO_MENU/10)),
+                                               'bold'),
+                                         tag=Gui.TAG_SPREMENLJIVI)
+            self.platno_menu.create_oval(Gui.SIRINA_PLATNO_MENU / 2 - 0.5*dy, 10 + 3.75*dy,
+                                         Gui.SIRINA_PLATNO_MENU / 2 + dy, 10 + 5.25*dy,
+                                         fill='{0}'.format('red' if self.igra.na_potezi==IGRALEC_R else 'yellow'),
+                                         tag=Gui.TAG_SPREMENLJIVI)
+
+    def narisi_polozaj(self, polozaj): # Premisli, če rabiš polozaj
         for (i, a) in enumerate(polozaj):
             for (j, b) in enumerate(a):
                 if b == IGRALEC_R:
@@ -168,23 +306,36 @@ class Gui():
                     self.narisi_Y((i,j))
 
     def narisi_Y(self, p):
-        d = Gui.VELIKOST_POLJA
+        d = self.VELIKOST_POLJA
         x = (p[0] + 1) * d
         y = (6 - p[1]) * d
-        gap = Gui.VELIKOST_GAP
+        gap = self.VELIKOST_GAP
         self.platno.create_oval(x - d/2 + gap, y - d/2 + gap,
                                 x + d/2 - gap, y + d/2 - gap,
                                 fill = 'yellow',
                                 width=0,
                                 tag=Gui.TAG_FIGURA)
 
+    def naslednja_igra(self):
+        if self.igra.na_potezi is None:
+            (zmagovalec, stirka) = self.igra.stanje_igre()
+            if zmagovalec == IGRALEC_R:
+                self.rezultat[0] += 1
+            elif zmagovalec == IGRALEC_Y:
+                self.rezultat[1] += 1
+        self.zacni_igro()
+
     def nastavi_tip(self, ime):
         self.tip = ime
         self.zacni_igro()
 
+    def nova_igra(self):
+        self.rezultat = [0, 0]
+        self.zacni_igro()
+
     def obkrozi(self, stirka):
         w = 5
-        d = Gui.VELIKOST_POLJA
+        d = self.VELIKOST_POLJA
         (i1,j1) = stirka[0]
         (i2,j2) = stirka[-1]
         if (i1 == i2) or (j1 == j2):
@@ -235,14 +386,14 @@ class Gui():
 
     def platno_klik(self, event):
         (x,y) = (event.x, event.y)
-        d = Gui.VELIKOST_POLJA
+        d = self.VELIKOST_POLJA
         if (x < d/2) or (x > 15*d/2) or (y < d/2) or (y > 13*d/2):
             # V tem primeru smo zunaj igralnega območja
             pass
         else:
             # TODO - preveri za robne pogoje
-            i = int((x - d/2) // Gui.VELIKOST_POLJA)
-            j = int((y - d/2) // Gui.VELIKOST_POLJA) # BRIŠI
+            i = int((x - d/2) // self.VELIKOST_POLJA)
+            j = int((y - d/2) // self.VELIKOST_POLJA) # BRIŠI
             if 1 >= 0: # To bo v neki verziji v logiki probably
                 if self.igra.na_potezi == IGRALEC_R:
                     self.igralec_r.klik((i,j))
@@ -266,11 +417,12 @@ class Gui():
             self.narisi_polozaj(novo_stanje[0])
 
             # Popravimo napis nad igralno površino
+            self.narisi_platno_menu()
             if self.igra.na_potezi == IGRALEC_R:
-                self.napis.set('Na potezi je RDEČI!')
+                #self.napis.set('Na potezi je RDEČI!')
                 self.igralec_r.igraj()
             elif self.igra.na_potezi == IGRALEC_Y:
-                self.napis.set('Na potezi je RUMENI!')
+                #self.napis.set('Na potezi je RUMENI!')
                 self.igralec_y.igraj()
         else:
             # Smo na začetku 'zgodovine' (igre)
@@ -291,10 +443,12 @@ class Gui():
 
             # Popravimo napis nad igralno površino
             if self.igra.na_potezi == IGRALEC_R:
-                self.napis.set('Na potezi je RDEČI!')
+                #self.napis.set('Na potezi je RDEČI!')
+                self.narisi_platno_menu()
                 self.igralec_r.igraj()
             elif self.igra.na_potezi == IGRALEC_Y:
-                self.napis.set('Na potezi je RUMENI!')
+                #self.napis.set('Na potezi je RUMENI!')
+                self.narisi_platno_menu()
                 self.igralec_y.igraj()
             else:
                 (zmagovalec, stirka) = self.igra.stanje_igre()
@@ -330,11 +484,12 @@ class Gui():
             # Sedaj pa preverimo, kako se bo igra nadaljevala
             if zmagovalec == NI_KONEC:
                 # Igre še ni konec
+                self.narisi_platno_menu()
                 if self.igra.na_potezi == IGRALEC_R:
-                    self.napis.set('Na potezi je RDEČI!')
+                    #self.napis.set('Na potezi je RDEČI!')
                     self.igralec_r.igraj()
                 elif self.igra.na_potezi == IGRALEC_Y:
-                    self.napis.set('Na potezi je RUMENI!')
+                    #self.napis.set('Na potezi je RUMENI!')
                     self.igralec_y.igraj()
             else:
                 # Igra se je končala
@@ -346,6 +501,15 @@ class Gui():
             self.igralec_r.prekini()
         if self.igralec_y:
             self.igralec_y.prekini()
+
+    def spremeni_velikost(self, event):
+        self.platno.delete('all')
+        (w,h) = (event.width, event.height)
+        self.VELIKOST_POLJA = min(w / 8, h / 7)
+        self.VELIKOST_GAP = self.VELIKOST_POLJA / 20
+        self.platno.config(width=w-0.9*MIN_SIRINA, height=h-200)
+        self.narisi_okvir()
+        self.narisi_polozaj(self.igra.polozaj)
 
     def zacni_igro(self):
         '''Zacne novo igro. Torej zaenkrat le pobriše vse dosedanje poteze.'''
@@ -366,8 +530,11 @@ class Gui():
         else:
             self.igra = Popout()
 
+        # Dodamo spremenljive elemente v platno_menu
+        self.narisi_platno_menu()
+        
         # Rdeči je prvi na potezi
-        self.napis.set('Na potezi je RDEČI.')
+        #self.napis.set('Na potezi je RDEČI.')
         self.igralec_r.igraj()
 
     def zapri_okno(self, master):
@@ -394,6 +561,9 @@ if __name__ == '__main__':
     # Naredimo glavno okno in nastavimo ime
     root = tkinter.Tk()
     root.title('Stiri v vrsto')
+    root.minsize(int(MIN_SIRINA), MIN_VISINA)
+    root.geometry('{0}x{1}'.format(int(0.9*MIN_SIRINA + 8*ZVP),
+                                   int(7*ZVP)))
 
     # Naredimo objekt razreda Gui in ga spravimo v spremenljivko,
     # sicer bo Python mislil, da je objekt neuporabljen in ga bo pobrisal
