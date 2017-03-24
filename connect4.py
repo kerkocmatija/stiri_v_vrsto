@@ -58,7 +58,8 @@ class Gui():
         # Podmenu "Igra"
         menu_igra = tkinter.Menu(menu)
         menu.add_cascade(label='Igra', menu=menu_igra)
-        menu_igra.add_command(label='Nova igra', command=self.nova_igra)
+        menu_igra.add_command(label='Nova igra',
+                              command=lambda: self.zacni_igro(nova=True))
         menu_igra.add_command(label='Naslednja igra', command=self.naslednja_igra)
         menu_igra.add_command(label='Stiri v vrsto',
                               command=lambda: self.nastavi_tip('4inarow'))
@@ -72,6 +73,22 @@ class Gui():
         menu.add_cascade(label='Uredi', menu=menu_uredi)
         menu_uredi.add_command(label='Razveljavi', command=self.platno_razveljavi)
         menu_uredi.add_command(label='Uveljavi', command=self.platno_uveljavi)
+
+        # Podmenu "Igralec 1"
+        menu_igralec1 = tkinter.Menu(menu)
+        menu.add_cascade(label='Igralec 1', menu=menu_igralec1)
+        menu_igralec1.add_command(label='Človek',
+                                  command=lambda: self.nastavi_igralca1('clovek'))
+        menu_igralec1.add_command(label='Računalnik',
+                                  command=lambda: self.nastavi_igralca1('racunalnik'))
+
+        # Podmenu "Igralec 2"
+        menu_igralec2 = tkinter.Menu(menu)
+        menu.add_cascade(label='Igralec 2', menu=menu_igralec2)
+        menu_igralec2.add_command(label='Človek',
+                                  command=lambda: self.nastavi_igralca2('clovek'))
+        menu_igralec2.add_command(label='Računalnik',
+                                  command=lambda: self.nastavi_igralca2('racunalnik'))
 
 ##        # Napis, ki prikazuje stanje igre
 ##        self.napis = tkinter.StringVar(master, value='Dobrodošli v 4 v vrsto!')
@@ -121,7 +138,7 @@ class Gui():
         # Dodamo možnosti
         self.gumb_nova_igra = tkinter.Button(self.frame1, text='Nova igra',
                                              width=int(0.4*MIN_SIRINA/7.25),
-                                             command=self.nova_igra)
+                                             command=lambda: self.zacni_igro(nova=True))
         self.gumb_nova_igra.grid(row=2, column=2, columnspan=3)
         self.gumb_naslednja_igra = tkinter.Button(self.frame1, text='Naslednja igra',
                                                   width=int(0.4*MIN_SIRINA/7.25),
@@ -178,7 +195,7 @@ class Gui():
                                            'bold'))
 
         # Pričnemo igro
-        self.zacni_igro()
+        self.zacni_igro(nova=True)
 
     def koncaj_igro(self, zmagovalec, stirka):
         '''Nastavi stanje igre na 'konec igre'.'''
@@ -327,9 +344,27 @@ class Gui():
                 self.rezultat[1] += 1
         self.zacni_igro()
 
+    def nastavi_igralca1(self, ime):
+        if ime == 'clovek':
+            self.igralec_r = Clovek(self)
+        else:
+            # Tukaj je še potrebno nastaviti, da se bo izbral željen algoritem
+            # TODO
+            self.igralec_r = Racunalnik(self, rand_alg())
+        self.zacni_igro(nova=True)
+
+    def nastavi_igralca2(self, ime):
+        if ime == 'clovek':
+            self.igralec_y = Clovek(self)
+        else:
+            # Tukaj je še potrebno nastaviti, da se bo izbral željen algoritem
+            # TODO
+            self.igralec_y = Racunalnik(self, rand_alg())
+        self.zacni_igro(nova=True)
+
     def nastavi_tip(self, ime):
         self.tip = ime
-        self.zacni_igro()
+        self.naslednja_igra()
 
     def nova_igra(self):
         self.rezultat = [0, 0]
@@ -505,6 +540,8 @@ class Gui():
             self.igralec_y.prekini()
 
     def spremeni_velikost(self, event):
+        '''Ta funkcija nam prilagaja velikost polja igralnega območja
+            glede na velikost celotnega okna.'''
         self.platno.delete('all')
         (w,h) = (event.width, event.height)
         self.VELIKOST_POLJA = min(w / 8, h / 7)
@@ -513,14 +550,22 @@ class Gui():
         self.narisi_okvir()
         self.narisi_polozaj(self.igra.polozaj)
 
-    def zacni_igro(self):
+    def zacni_igro(self, nova=False):
         '''Zacne novo igro. Torej zaenkrat le pobriše vse dosedanje poteze.'''
         self.prekini_igralce()
+        
+        # Preverimo, če želimo novo igro, v tem primeru rezultat
+        # nastavimo na 0-0
+        if nova:
+            self.rezultat = [0, 0]
 
         # Dodamo igralce
-        self.igralec_r = Clovek(self)
+        if self.igralec_r is None:
+            self.igralec_r = Clovek(self)
+        if self.igralec_y is None:
+            self.igralec_y = Clovek(self)
         #self.igralec_y = Clovek(self)
-        self.igralec_y = Racunalnik(self, rand_alg())
+        #self.igralec_y = Racunalnik(self, rand_alg())
 
         # Pobrišemo vse figure iz igralne površine        
         self.platno.delete(Gui.TAG_FIGURA)
