@@ -129,7 +129,12 @@ class Popout():
                 # s je naša zmagovalna štirka
                 return (barva, s)
         # Če zmagovalca ni, moramo preveriti, če je igre konec
-        poteze = self.veljavne_poteze()[0]
+        (poteze, popout) = self.veljavne_poteze()
+        # Najprej preverimo, če lahko odstranimo kakšen žeton
+        for i in popout:
+            if i:
+                return (NI_KONEC, None)
+        # Preverimo še, če obstaja kakšna veljavna poteza
         for i in poteze:
             if i < NEVELJAVNO:
                 # Obstajajo še vsaj 1 veljavna poteza
