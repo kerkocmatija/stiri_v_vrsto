@@ -371,8 +371,8 @@ class Gui():
         self.zacni_igro()
 
     def obkrozi(self, stirka):
-        w = 5
         d = self.VELIKOST_POLJA
+        w = 5 # Odsvetujem spreminjanje (namenoma je fiksna vrednost)
         (i1,j1) = stirka[0]
         (i2,j2) = stirka[-1]
         if (i1 == i2) or (j1 == j2):
@@ -549,6 +549,9 @@ class Gui():
         self.platno.config(width=w-0.9*MIN_SIRINA, height=h-200)
         self.narisi_okvir()
         self.narisi_polozaj(self.igra.polozaj)
+        if self.igra.na_potezi is None:
+            (zmagovalec, stirka) = self.igra.stanje_igre()
+            self.koncaj_igro(zmagovalec, stirka)
 
     def zacni_igro(self, nova=False):
         '''Zacne novo igro. Torej zaenkrat le pobriše vse dosedanje poteze.'''
