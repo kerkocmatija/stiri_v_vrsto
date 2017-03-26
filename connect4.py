@@ -397,7 +397,7 @@ class Gui():
             # Če je štirka desno dol samo preslikamo y2 čez S
             y2 = yt1 + r if j1 < j2 else yt1 - r
 
-            dxy = (sqrt(2) + 6) * d / 2
+            dxy = (sqrt(2) + 6) * d / 2 + (i2-i1-3)*d
             x3 = x1 + dxy
             x4 = x2 + dxy
 
