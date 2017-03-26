@@ -1,12 +1,10 @@
-######################################################################
-## Igra
+#################
+## LOGIKA IGRE ##
+#################
 
-IGRALEC_R = 1 # Igralec, ki ima rdeče krogce
-IGRALEC_Y = 2 # Igralec, ki ima rumene krogce
-PRAZNO = 0 # Prazno polje
-NEODLOCENO = "neodločeno" # Igra se je končala z neodločenim izzidom
-NI_KONEC = "ni konec" # Igre še ni konec
-NEVELJAVNO = 99 # Ta stolpec ni veljaven
+from norm_logika import *
+from pop_logika import *
+from five_logika import *
 
 def nasprotnik(igralec):
     """Vrni nasprotnika od igralca."""
@@ -26,22 +24,17 @@ def nasprotnik(igralec):
         assert False, "neveljaven nasprotnik"
 
 class Igra():
-    # Tabela vseh možnih zmagovalnih kombinacij 4 v vrsto
-    stirke = []
-    for i in range(7):
-        for j in range(3): # Navpične
-            stirke.append([(i,j), (i,j+1), (i,j+2), (i,j+3)])
-        if i < 4: # 4 = 7 - 3, 3 mesta še naprej za 4ko
-            for j in range(6): # 6 vrstic
-                stirke.append([(i,j), (i+1,j), (i+2, j), (i+3, j)]) # Vodoravne
-                if j < 3: # Diagonalne desno gor
-                    stirke.append([(i,j), (i+1,j+1), (i+2,j+2), (i+3,j+3)])
-                if j > 2: # Diagonalne desno dol
-                    stirke.append([(i,j), (i+1,j-1), (i+2,j-2), (i+3,j-3)])
-    
-    def __init__(self):
+    def __init__(self, tip=None):
         # Ustvarimo seznam trenutne pozicije
         self.polozaj = [[PRAZNO]*6 for i in range(7)]
+
+        # Nastavimo tip igre
+        if tip == 'popout':
+            self.tip = pop_logika(self)
+        elif tip == '5inarow':
+            self.tip = five_logika(self)
+        else:
+            self.tip = norm_logika(self)
 
         # Na potezi je rdeči
         self.na_potezi = IGRALEC_R
@@ -69,9 +62,19 @@ class Igra():
         '''Povleci potezo p, če je veljavna, sicer ne naredi nič.
             Veljavna igra -> vrne stanje_igre() po potezi, sicer None.'''
         (i,j) = p # Igrana poteza
-        poteze = self.veljavne_poteze() # Seznam veljavnih potez
-
-        if (poteze[i] == NEVELJAVNO) or (self.na_potezi == None):
+        (poteze, poteze_popout) = self.tip.veljavne_poteze() # Seznam veljavnih potez
+        je_popout = False # Gre za popout potezo?
+        
+        if poteze_popout and j == 5 and poteze_popout[i]:
+            # Imamo popout potezo
+            if len(self.zgodovina) > self.stevec:
+                self.zgodovina = self.zgodovina[:self.stevec]
+            self.shrani_polozaj()
+            # Odstranimo spodnji žeton
+            del self.polozaj[i][0]
+            self.polozaj[i].append(0)
+            je_popout = True
+        elif poteze[i] == NEVELJAVNO or self.na_potezi is None:
             # Poteza ni veljavna
             return None
         else:
@@ -79,17 +82,17 @@ class Igra():
                 self.zgodovina = self.zgodovina[:self.stevec]
             self.shrani_polozaj()
             self.polozaj[i][poteze[i]] = self.na_potezi
-            (zmagovalec, stirka) = self.stanje_igre()
-            if zmagovalec == NI_KONEC:
-                # Igra se nadaljuje, na potezi je nasprotnik
-                self.na_potezi = nasprotnik(self.na_potezi)
-            else:
-                # Igra se je zaključila
-                self.na_potezi = None
-            self.zadnja = ([self.polozaj[i][:] for i in range(7)],
-                           self.na_potezi)
-            # Na koncu return dodamo False, zaradi kompatibilnosti s popout.py
-            return (zmagovalec, stirka, (i,poteze[i]), False)
+        (zmagovalec, stirka) = self.tip.stanje_igre()
+        # Preverimo, če je igre konec
+        if zmagovalec == NI_KONEC:
+            # Igra se nadaljuje, na potezi je nasprotnik
+            self.na_potezi = nasprotnik(self.na_potezi)
+        else:
+            # Igra se je zaključila
+            self.na_potezi = None
+        self.zadnja = ([self.polozaj[i][:] for i in range(7)],
+                       self.na_potezi)
+        return (zmagovalec, stirka, (i,poteze[i]), je_popout if poteze_popout else False)
 
     def razveljavi(self):
         '''Razveljavi potezo in se vrne v prejšnje stanje.'''
@@ -113,22 +116,7 @@ class Igra():
             - (IGRALEC_Y, stirka), če je igre konec in je zmagal IGRALEC_Y z dano zmagovalno štirko,
             - (NEODLOCENO, None), če je igre konec in je neodločeno,
             - (NI_KONEC, None), če je igra še vedno v teku.'''
-        # Preverimo najprej, če obstaja kakšna zmagovalna štirka
-        for s in Igra.stirke:
-            ((i1,j1),(i2,j2),(i3,j3),(i4,j4)) = s
-            barva = self.polozaj[i1][j1]
-            if (barva != PRAZNO) and (barva == self.polozaj[i2][j2] == self.polozaj[i3][j3] == self.polozaj[i4][j4]):
-                # s je naša zmagovalna štirka
-                return (barva, s)
-        # Če zmagovalca ni, moramo preveriti, če je igre konec
-        poteze = self.veljavne_poteze()
-        for i in poteze:
-            if i < NEVELJAVNO:
-                # Obstajajo še vsaj 1 veljavna poteza
-                return (NI_KONEC, None)
-        # Če pridemo do sem, so vsa polja zasedena in ni več veljavnih potez
-        # Pravtako tudi zmagovalca ni, torej je rezultat neodločen
-        return (NEODLOCENO, None)
+        return self.tip.stanje_igre()
 
     def uveljavi(self):
         '''Uveljavi zadnjo razveljavljeno potezo in se vrne v njeno stanje.'''

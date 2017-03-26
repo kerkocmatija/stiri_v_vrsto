@@ -2,8 +2,6 @@ import tkinter # Uvozimo tkinter za uporabniški vmesnik
 from math import sqrt
 
 from igra import *
-from popout import Popout
-from five_row import Five_row
 from clovek import *
 from racunalnik import *
 from rand_algoritem import *
@@ -577,9 +575,9 @@ class Gui():
         if self.tip == '4inarow':
             self.igra = Igra()
         elif self.tip == '5inarow':
-            self.igra = Five_row()
+            self.igra = Igra('5inarow')
         else:
-            self.igra = Popout()
+            self.igra = Igra('popout')
 
         # Dodamo spremenljive elemente v platno_menu
         self.narisi_platno_menu()
