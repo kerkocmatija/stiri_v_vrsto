@@ -38,9 +38,9 @@ class five_logika():
         if i < 3:
             for j in range(6):
                 petke.append([(i,j), (i+1,j), (i+2,j), (i+3,j), (i+4,j)])
-                if j < 2:
+                if j < 2: # Diagonale desno gor
                     petke.append([(i,j), (i+1,j+1), (i+2,j+2), (i+3,j+3), (i+4,j+4)])
-                if j > 2: # Diagonalne desno dol
+                if j > 3: # Diagonalne desno dol
                     petke.append([(i,j), (i+1,j-1), (i+2,j-2), (i+3,j-3), (i+4,j-4)])
     
     def __init__(self, v_igri):

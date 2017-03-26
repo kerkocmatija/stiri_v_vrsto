@@ -56,6 +56,7 @@ class Igra():
         k = Igra()
         k.polozaj = [self.polozaj[i][:] for i in range(7)]
         k.na_potezi = self.na_potezi
+        k.tip = self.tip
         return k
 
     def povleci_potezo(self, p):
@@ -130,20 +131,3 @@ class Igra():
             return (self.polozaj, self.na_potezi)
         else:
             return None
-
-    def veljavne_poteze(self):
-        '''Vrne seznam veljavnih potez.'''
-        poteze = []
-        for a in self.polozaj:
-            veljaven_stolpec = False
-            for (j, b) in enumerate(a):
-                if b == PRAZNO:
-                    # Dobili smo veljavno potezo
-                    # Veljavno je le prvo prazno polje v stolpu
-                    poteze.append(j)
-                    veljaven_stolpec = True
-                    break
-            if not veljaven_stolpec:
-                # V stolpcu ni bilo prostih mest
-                poteze.append(NEVELJAVNO)
-        return poteze

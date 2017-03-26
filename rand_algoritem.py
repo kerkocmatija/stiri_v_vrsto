@@ -35,8 +35,15 @@ class rand_alg():
             self.poteza = poteza
 
     def rand_algoritem(self):
-        veljavne_poteze = self.igra.veljavne_poteze()
-        st = int(random.random() * 7)
-        while veljavne_poteze[st] == NEVELJAVNO:
-            st = int(random.random() * 7)
-        return (st, veljavne_poteze[st])
+        (poteze, popout) = self.igra.tip.veljavne_poteze()
+        naredil_potezo = False
+        while not naredil_potezo:
+            st1 = int(random.random() * 2)
+            st2 = int(random.random() * 7)
+            if popout:
+                st1 = int(random.random() * 2)
+                if st1 == 1:
+                    if popout[st2]:
+                        return (st2, 5)
+            if poteze[st2] != NEVELJAVNO:
+                return (st2, poteze[st2])
