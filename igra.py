@@ -83,41 +83,51 @@ class Igra():
     def povleci_potezo(self, p):
         '''Povleci potezo p, če je veljavna, sicer ne naredi nič.
             Veljavna igra -> vrne stanje_igre() po potezi, sicer None.'''
-        (i,j) = p # Igrana poteza
+        #(i,j) = p # Igrana poteza
         poteze = self.veljavne_poteze()
         je_popout = False
 
         # Preverimo, če je poteza veljavna
-        if j == 0 and (-i-1) in poteze:
-            # Imamo popout potezo
-            if len(self.zgodovina) > self.stevec:
-                self.zgodovina = self.zgodovina[:self.stevec]
-            self.shrani_polozaj()
-            # Odstranimo spodnji žeton
-            del self.polozaj[i][0]
-            self.polozaj[i].append(0)
-            je_popout = True
-        elif (i+1) in poteze:
+        if p < 0:
+            k = -(p+1) # Kateri stolpec to dejansko je
+            if p in poteze:
+                # Imamo popout potezo
+                if len(self.zgodovina) > self.stevec:
+                    self.zgodovina = self.zgodovina[:self.stevec]
+                self.shrani_polozaj()
+                # Odstranimo spodnji žeton
+                del self.polozaj[k][0]
+                self.polozaj[k].append(0)
+                j = 0
+                je_popout = True
+            elif -p in poteze:
+                if len(self.zgodovina) > self.stevec:
+                    self.zgodovina = self.zgodovina[:self.stevec]
+                self.shrani_polozaj()
+                j = self.vrstica(k)
+                self.polozaj[k][j] = self.na_potezi
+            else:
+                # Poteza ni veljavna
+                return None
+        elif p in poteze:
             # Poteza je veljavna
             if len(self.zgodovina) > self.stevec:
                 self.zgodovina = self.zgodovina[:self.stevec]
             self.shrani_polozaj()
-            j = self.vrstica(i)
-            self.polozaj[i][j] = self.na_potezi
+            j = self.vrstica(p-1)
+            self.polozaj[p-1][j] = self.na_potezi
         else:
             # Poteza ni veljavna
             return None
         (zmagovalec, stirka) = self.stanje_igre()
-        # Preverimo, če je igre konec
         if zmagovalec == NI_KONEC:
             # Igra se nadaljuje, na potezi je nasprotnik
             self.na_potezi = nasprotnik(self.na_potezi)
         else:
             # Igra se je zaključila
             self.na_potezi = None
-        self.zadnja = ([self.polozaj[i][:] for i in range(7)],
-                       self.na_potezi)
-        return (zmagovalec, stirka, (i, j), je_popout)
+        self.zadnja = ([self.polozaj[i][:] for i in range(7)], self.na_potezi)
+        return (zmagovalec, stirka, (k,j) if p<0 else (p-1,j), je_popout)
 
     def razveljavi(self):
         '''Razveljavi potezo in se vrne v prejšnje stanje.'''

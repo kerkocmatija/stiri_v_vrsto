@@ -7,6 +7,7 @@ from racunalnik import *
 from rand_algoritem import *
 from minimax import *
 from pop_logika import *
+from five_logika import *
 
 #########################
 ## UPORABNIŠKI VMESNIK ##
@@ -430,12 +431,14 @@ class Gui():
             pass
         else:
             # TODO - preveri za robne pogoje
-            i = int((x - d/2) // self.VELIKOST_POLJA)
+            i = int((x - d/2) // self.VELIKOST_POLJA) + 1
             j = 5 - int((y - d/2) // self.VELIKOST_POLJA) # BRIŠI?
+            if isinstance(self.igra, pop_logika) and j == 0:
+                i = -i
             if self.igra.na_potezi == IGRALEC_R:
-                self.igralec_r.klik((i,j))
+                self.igralec_r.klik(i)
             elif self.igra.na_potezi == IGRALEC_Y:
-                self.igralec_r.klik((i,j))
+                self.igralec_r.klik(i)
             else:
                 # Nihče ni na potezi
                 pass
@@ -578,7 +581,7 @@ class Gui():
         if self.tip == '4inarow':
             self.igra = Igra()
         elif self.tip == '5inarow':
-            self.igra = Igra('5inarow')
+            self.igra = five_logika()
         else:
             self.igra = pop_logika()
 

@@ -2,12 +2,6 @@
 ## LOGIKA POPOUT ##
 ###################
 
-IGRALEC_R = 1 # Igralec, ki ima rdeče krogce
-IGRALEC_Y = 2 # Igralec, ki ima rumene krogce
-PRAZNO = 0 # Prazno polje
-NEODLOCENO = "neodločeno" # Igra se je končala z neodločenim izzidom
-NI_KONEC = "ni konec" # Igre še ni konec
-NEVELJAVNO = 99 # Ta stolpec ni veljaven
 from igra import *
 
 class pop_logika(Igra):

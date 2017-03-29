@@ -2,14 +2,9 @@
 ## LOGIKA PET-V-VRSTO ##
 ########################
 
-IGRALEC_R = 1 # Igralec, ki ima rdeče krogce
-IGRALEC_Y = 2 # Igralec, ki ima rumene krogce
-PRAZNO = 0 # Prazno polje
-NEODLOCENO = "neodločeno" # Igra se je končala z neodločenim izzidom
-NI_KONEC = "ni konec" # Igre še ni konec
-NEVELJAVNO = 99 # Ta stolpec ni veljaven
+from igra import *
 
-class five_logika():
+class five_logika(Igra):
     # Tabela vseh možnih zmagovalnih kombinacij 4 v vrsto
     stirke_R = [
         [(0,1), (1,2), (2,3), (3,4)],
@@ -43,9 +38,6 @@ class five_logika():
                 if j > 3: # Diagonalne desno dol
                     petke.append([(i,j), (i+1,j-1), (i+2,j-2), (i+3,j-3), (i+4,j-4)])
     
-    def __init__(self, v_igri):
-        self.v_igri = v_igri
-
     def stanje_igre(self):
         '''Vrne nam trenutno stanje igre. Možnosti so:
             - (IGRALEC_R, stirka), če je igre konec in je zmagal IGRALEC_R z dano zmagovalno štirko,
@@ -55,21 +47,21 @@ class five_logika():
         # Najprej preverimo, če obstaja kakšna zmagovalna štirka
         for s in five_logika.stirke_R:
             ((i1,j1),(i2,j2),(i3,j3),(i4,j4)) = s
-            barva = self.v_igri.polozaj[i1][j1]
-            if (barva == IGRALEC_R) and (barva == self.v_igri.polozaj[i2][j2] == self.v_igri.polozaj[i3][j3] == self.v_igri.polozaj[i4][j4]):
+            barva = self.polozaj[i1][j1]
+            if (barva == IGRALEC_R) and (barva == self.polozaj[i2][j2] == self.polozaj[i3][j3] == self.polozaj[i4][j4]):
                 # s je naša zmagovalna štirka
                 return (barva, s)
         for s in five_logika.stirke_Y:
             ((i1,j1),(i2,j2),(i3,j3),(i4,j4)) = s
-            barva = self.v_igri.polozaj[i1][j1]
-            if (barva == IGRALEC_Y) and (barva == self.v_igri.polozaj[i2][j2] == self.v_igri.polozaj[i3][j3] == self.v_igri.polozaj[i4][j4]):
+            barva = self.polozaj[i1][j1]
+            if (barva == IGRALEC_Y) and (barva == self.polozaj[i2][j2] == self.polozaj[i3][j3] == self.polozaj[i4][j4]):
                 # s je naša zmagovalna štirka
                 return (barva, s)
         # Preverimo še sedaj, če obstaja zmagovalna petka
         for p in five_logika.petke:
             ((i1,j1),(i2,j2),(i3,j3),(i4,j4), (i5,j5)) = p
-            barva = self.v_igri.polozaj[i1][j1]
-            if (barva != PRAZNO) and (barva == self.v_igri.polozaj[i2][j2] == self.v_igri.polozaj[i3][j3] == self.v_igri.polozaj[i4][j4] == self.v_igri.polozaj[i5][j5]):
+            barva = self.polozaj[i1][j1]
+            if (barva != PRAZNO) and (barva == self.polozaj[i2][j2] == self.polozaj[i3][j3] == self.polozaj[i4][j4] == self.polozaj[i5][j5]):
                 # s je naša zmagovalna petka
                 return (barva, p)
         # Če zmagovalca ni, moramo preveriti, če je igre konec
@@ -81,11 +73,3 @@ class five_logika():
             # Če pridemo do sem, so vsa polja zasedena in ni več veljavnih potez
             # Pravtako tudi zmagovalca ni, torej je rezultat neodločen
             return (NEODLOCENO, None)
-
-    def veljavne_poteze(self):
-        '''Vrne seznam veljavnih potez.'''
-        poteze = []
-        for (i,a) in enumerate(self.v_igri.polozaj):
-            if a[-1] == 0:
-                poteze.append(i+1)
-        return poteze
