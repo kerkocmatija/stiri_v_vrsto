@@ -6,6 +6,7 @@ from clovek import *
 from racunalnik import *
 from rand_algoritem import *
 from minimax import *
+from pop_logika import *
 
 #########################
 ## UPORABNIŠKI VMESNIK ##
@@ -123,7 +124,8 @@ class Gui():
                                     width=0.8 * MIN_SIRINA,
                                     height=MIN_VISINA,
                                     relief=tkinter.GROOVE,
-                                    borderwidth=Gui.OKVIR)
+                                    borderwidth=Gui.OKVIR,
+                                    bg='black')
         self.frame1.pack(side=tkinter.LEFT, anchor=tkinter.NW)
         self.frame1.grid_propagate(0)
 
@@ -349,7 +351,7 @@ class Gui():
         else:
             # Tukaj je še potrebno nastaviti, da se bo izbral željen algoritem
             # TODO
-            self.igralec_r = Racunalnik(self, Minimax(3))
+            self.igralec_r = Racunalnik(self, rand_alg())
         self.zacni_igro(nova=True)
 
     def nastavi_igralca2(self, ime):
@@ -358,7 +360,7 @@ class Gui():
         else:
             # Tukaj je še potrebno nastaviti, da se bo izbral željen algoritem
             # TODO
-            self.igralec_y = Racunalnik(self, Minimax(3))
+            self.igralec_y = Racunalnik(self, rand_alg())
         self.zacni_igro(nova=True)
 
     def nastavi_tip(self, ime):
@@ -429,15 +431,14 @@ class Gui():
         else:
             # TODO - preveri za robne pogoje
             i = int((x - d/2) // self.VELIKOST_POLJA)
-            j = int((y - d/2) // self.VELIKOST_POLJA) # BRIŠI
-            if 1 >= 0: # To bo v neki verziji v logiki probably
-                if self.igra.na_potezi == IGRALEC_R:
-                    self.igralec_r.klik((i,j))
-                elif self.igra.na_potezi == IGRALEC_Y:
-                    self.igralec_r.klik((i,j))
-                else:
-                    # Nihče ni na potezi
-                    pass
+            j = 5 - int((y - d/2) // self.VELIKOST_POLJA) # BRIŠI?
+            if self.igra.na_potezi == IGRALEC_R:
+                self.igralec_r.klik((i,j))
+            elif self.igra.na_potezi == IGRALEC_Y:
+                self.igralec_r.klik((i,j))
+            else:
+                # Nihče ni na potezi
+                pass
 
     def platno_razveljavi(self, event=None):
         '''Razveljavimo zadnjo potezo in prikažemo prejšnje stanje.'''
@@ -513,6 +514,7 @@ class Gui():
                 self.narisi_polozaj(self.igra.polozaj)
             else:
                 if igralec == IGRALEC_R:
+                    print(p1)
                     self.narisi_R(p1)
                 elif igralec == IGRALEC_Y:
                     self.narisi_Y(p1)
@@ -578,7 +580,7 @@ class Gui():
         elif self.tip == '5inarow':
             self.igra = Igra('5inarow')
         else:
-            self.igra = Igra('popout')
+            self.igra = pop_logika()
 
         # Dodamo spremenljive elemente v platno_menu
         self.narisi_platno_menu()

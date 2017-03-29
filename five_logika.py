@@ -73,28 +73,19 @@ class five_logika():
                 # s je naša zmagovalna petka
                 return (barva, p)
         # Če zmagovalca ni, moramo preveriti, če je igre konec
-        (poteze, popout) = self.veljavne_poteze()
-        for i in poteze:
-            if i < NEVELJAVNO:
-                # Obstajajo še vsaj 1 veljavna poteza
-                return (NI_KONEC, None)
-        # Če pridemo do sem, so vsa polja zasedena in ni več veljavnih potez
-        # Pravtako tudi zmagovalca ni, torej je rezultat neodločen
-        return (NEODLOCENO, None)
+        poteze = self.veljavne_poteze()
+        if len(poteze) > 0:
+            # Obstaja še vsaj 1 veljavna poteza
+            return (NI_KONEC, None)
+        else:
+            # Če pridemo do sem, so vsa polja zasedena in ni več veljavnih potez
+            # Pravtako tudi zmagovalca ni, torej je rezultat neodločen
+            return (NEODLOCENO, None)
 
     def veljavne_poteze(self):
         '''Vrne seznam veljavnih potez.'''
         poteze = []
-        for a in self.v_igri.polozaj:
-            veljaven_stolpec = False
-            for (j, b) in enumerate(a):
-                if b == PRAZNO:
-                    # Našli smo veljavno potezo
-                    # Veljavno je le prvo prazno polje v stolpcu
-                    poteze.append(j)
-                    veljaven_stolpec = True
-                    break
-            if not veljaven_stolpec:
-                # V stolpcu ni bilo prostih mest
-                poteze.append(NEVELJAVNO)
-        return (poteze, False)
+        for (i,a) in enumerate(self.v_igri.polozaj):
+            if a[-1] == 0:
+                poteze.append(i+1)
+        return poteze

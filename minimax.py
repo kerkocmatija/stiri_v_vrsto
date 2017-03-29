@@ -70,10 +70,10 @@ class Minimax:
                     # Maksimiziramo
                     najboljsa_poteza = None
                     vrednost_najboljse = -Minimax.NESKONCNO
-                    for (i,p) in enumerate(self.igra.tip.veljavne_poteze()[0]):
-                        if p == NEVELJAVNO:
-                            continue
-                        self.igra.povleci_potezo((i,p))
+                    for i in self.igra.tip.veljavne_poteze():
+                        j = self.v_igri.vrstica(i)
+                        # i je stolpec, kamor lahko igramo
+                        self.igra.povleci_potezo((i,j))
                         vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                         self.igra.razveljavi()
                         if vrednost > vrednost_najboljse:
