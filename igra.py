@@ -49,14 +49,6 @@ class Igra():
         # Ustvarimo seznam trenutne pozicije
         self.polozaj = [[PRAZNO]*6 for i in range(7)]
 
-##        # Nastavimo tip igre
-##        if tip == 'popout':
-##            self.tip = pop_logika(self)
-##        elif tip == '5inarow':
-##            self.tip = five_logika(self)
-##        else:
-##            self.tip = norm_logika(self)
-
         # Na potezi je rdeči
         self.na_potezi = IGRALEC_R
 
@@ -77,7 +69,6 @@ class Igra():
         k = Igra()
         k.polozaj = [self.polozaj[i][:] for i in range(7)]
         k.na_potezi = self.na_potezi
-        k.tip = self.tip
         return k
 
     def povleci_potezo(self, p):
@@ -167,6 +158,45 @@ class Igra():
             # Če pridemo do sem, so vsa polja zasedena in ni več veljavnih potez
             # Pravtako tudi zmagovalca ni, torej je rezultat neodločen
             return (NEODLOCENO, None)
+
+##    def stevilo_dosegljivih_stirk(self):
+##        '''Vrne koliko zmagovalnih štirk še lahko posamezen igralec doseže.'''
+##        # Takih potez bo za posameznega igralca največ len(Igra.stirke) = 69
+##        stevilo = [0, 0] # Prvo imamo stevilo rdecih nato rumenih
+##        
+##        for s in Igra.stirke:
+##            ((i1,j1),(i2,j2),(i3,j3),(i4,j4)) = s
+##            barve = list(set([self.polozaj[i1][j1], self.polozaj[i2][j2],
+##                     self.polozaj[i3][j4], self.polozaj[i4][j4]]))
+##            if len(barve) == 1:
+##                if barve[0] == IGRALEC_R:
+##                    stevilo[0] += 1
+##                elif barve[0] == IGRALEC_Y:
+##                    stevilo[1] += 1
+##                else:
+##                    stevilo[0] += 1
+##                    stevilo[1] += 1
+##            elif len(barve) == 2:
+##                if PRAZNO in barve:
+##                    b = list(set(barve) - set([PRAZNO]))[0]
+##                    if b == IGRALEC_R:
+##                        stevilo[0] += 1
+##                    else:
+##                        stevilo[1] += 1
+##                else:
+##                    continue
+##            else:
+##                continue
+##        return stevilo
+
+    def stevilo_zetonov(self):
+        '''Vrne število žetonov na igralnem območju.'''
+        # Teh bo največ 6*7 = 42
+        st_zet = 0
+        for i in self.polozaj:
+            st_zet += i.count(IGRALEC_R)
+            st_zet += i.count(IGRALEC_Y)
+        return st_zet
 
     def uveljavi(self):
         '''Uveljavi zadnjo razveljavljeno potezo in se vrne v njeno stanje.'''

@@ -348,20 +348,20 @@ class Gui():
 
     def nastavi_igralca1(self, ime):
         if ime == 'clovek':
-            self.igralec_r = Clovek(self)
+            self.igralec_r = None
         else:
             # Tukaj je še potrebno nastaviti, da se bo izbral željen algoritem
             # TODO
-            self.igralec_r = Racunalnik(self, rand_alg())
+            self.igralec_r = Racunalnik(self, Minimax(4))
         self.zacni_igro(nova=True)
 
     def nastavi_igralca2(self, ime):
         if ime == 'clovek':
-            self.igralec_y = Clovek(self)
+            self.igralec_y = None
         else:
             # Tukaj je še potrebno nastaviti, da se bo izbral željen algoritem
             # TODO
-            self.igralec_y = Racunalnik(self, rand_alg())
+            self.igralec_y = Racunalnik(self, Minimax(4))
         self.zacni_igro(nova=True)
 
     def nastavi_tip(self, ime):
@@ -517,7 +517,6 @@ class Gui():
                 self.narisi_polozaj(self.igra.polozaj)
             else:
                 if igralec == IGRALEC_R:
-                    print(p1)
                     self.narisi_R(p1)
                 elif igralec == IGRALEC_Y:
                     self.narisi_Y(p1)

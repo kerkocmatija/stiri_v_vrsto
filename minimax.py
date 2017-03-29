@@ -1,6 +1,7 @@
 import logging
 
 from igra import IGRALEC_R, IGRALEC_Y, PRAZNO, NEODLOCENO, NI_KONEC, nasprotnik, NEVELJAVNO
+import random
 
 #######################
 ## ALGORITEM MINIMAX ##
@@ -25,11 +26,13 @@ class Minimax:
         '''Izračunaj potezo za trenutno stanje dane igre.'''
         # To metodo pokličemo iz vzporednega vlakna
         self.igra = igra
+        self.jaz = self.igra.na_potezi
         self.prekinitev = False # Glavno vlakno bo to nastavilo na True, če bomo morali prekiniti
         self.poteza = None # Sem napišemo potezo, ko jo najdemo
 
         # Poženemo minimax
         (poteza, vrednost) = self.minimax(self.globina, True)
+        print('poteza = {0}, vrednost = {1}'.format(poteza, vrednost))
         self.jaz = None
         self.igra = None
         if not self.prekinitev:
@@ -42,22 +45,79 @@ class Minimax:
 
     def vrednost_pozicije(self):
         '''Ocena vrednosti polozaja.'''
-        # TODO
-        return 10**3
+        vrednost = 0
+        if self.igra is None:
+            # Če bi se slučajno zgodilo, da ne bi bila izbrana nobena igra
+            return vrednost
+        elif self.igra.na_potezi is None:
+            return vrednost
+        else:
+            # Najprej preverimo ker tip igre imamo
+            #if isinstance(self.igra, five_logika):
+            if 3 > 5:
+                # TODO
+                tocke = [0, 0]
+                pass
+            else:
+                # Imamo normalno ali popout igro, torej so štirke definirane sledeče
+                stirke = []
+                for i in range(7):
+                    for j in range(3): # Navpične
+                        stirke.append([(i,j), (i,j+1), (i,j+2), (i,j+3)])
+                    if i < 4: # 4 = 7 - 3, 3 mesta še naprej za 4ko
+                        for j in range(6): # 6 vrstic
+                            stirke.append([(i,j), (i+1,j), (i+2, j), (i+3, j)]) # Vodoravne
+                            if j < 3: # Diagonalne desno gor
+                                stirke.append([(i,j), (i+1,j+1), (i+2,j+2), (i+3,j+3)])
+                            if j > 2: # Diagonalne desno dol
+                                stirke.append([(i,j), (i+1,j-1), (i+2,j-2), (i+3,j-3)])
+                # Pojdimo sedaj skozi vse možne zmagovalne štirke in jih
+                # primerno ovrednotimo
+                # Stirke, ki ze vsebujejo zetone obeh igralec so vredne 0 tock
+                # Prazne stirke so vredne 0.1 tocke
+                # Ostale so vredne a/4 tock, kjer je a stevilo zetonov znotraj stirke
+                tocke = [0, 0] # Sem bomo shranili stevilo tock igralcev [R,Y]
+                for s in stirke:
+                    ((i1,j1),(i2,j2),(i3,j3),(i4,j4)) = s
+                    stirka = [self.igra.polozaj[i1][j1], self.igra.polozaj[i2][j2],
+                             self.igra.polozaj[i3][j4], self.igra.polozaj[i4][j4]]
+                    barve = list(set(stirka))
+                    # barve bo dolžine 2 ali 3, če bi bilo dolžine 1,
+                    # bi bilo igre že konec
+                    if len(barve) == 2:
+                        if PRAZNO in barve:
+                            # V štirki so žetoni samo 1 barve
+                            b = list(set(barve) - set([PRAZNO]))[0]
+                            if b == IGRALEC_R:
+                                tocke[0] += stirka.count(b) / 4
+                            else:
+                                tocke[1] += stirka.count(b) / 4
+                        else:
+                            continue
+                    else:
+                        continue
+            (dos1, dos2) = tocke
+            if self.igra.na_potezi == IGRALEC_R:
+                vrednost += (dos1 - dos2) / 69 * 0.1 * Minimax.ZMAGA
+            else:
+                vrednost += (dos2 - dos1) / 69 * 0.1 * Minimax.ZMAGA
+            vrednost *= 1 - self.igra.stevilo_zetonov() / (2*6*7)
+        return vrednost
 
     def minimax(self, globina, maksimiziramo):
-        '''Glavna metoda minimax.'''
+        '''Glavna metoda Minimax.'''
         if self.prekinitev:
             # Sporočili so nam, da moramo prekiniti
             return (None, 0)
 
         (zmagovalec, stirka) = self.igra.stanje_igre()
         if zmagovalec in (IGRALEC_R, IGRALEC_Y, NEODLOCENO):
+            k = 1 - self.igra.stevilo_zetonov() / (2*6*7)
             # Igre je konec, vrnemo njeno vrednost
             if zmagovalec == self.jaz:
-                return (None, Minimax.ZMAGA)
+                return (None, Minimax.ZMAGA * k)
             elif zmagovalec == nasprotnik(self.jaz):
-                return (None, -Minimax.ZMAGA)
+                return (None, -Minimax.ZMAGA * k)
             else:
                 return (None, 0)
         elif zmagovalec == NI_KONEC:
@@ -69,29 +129,41 @@ class Minimax:
                 if maksimiziramo:
                     # Maksimiziramo
                     najboljsa_poteza = None
+                    sez_naj_potez = []
                     vrednost_najboljse = -Minimax.NESKONCNO
-                    for i in self.igra.tip.veljavne_poteze():
-                        j = self.v_igri.vrstica(i)
-                        # i je stolpec, kamor lahko igramo
-                        self.igra.povleci_potezo((i,j))
+                    for p in self.igra.veljavne_poteze():
+                        self.igra.povleci_potezo(p)
                         vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                         self.igra.razveljavi()
                         if vrednost > vrednost_najboljse:
-                            najboljsa_poteza = (i,p)
+                            sez_naj_potez = [p]
                             vrednost_najboljse = vrednost
+                        elif vrednost == vrednost_najboljse:
+                            sez_naj_potez.append(p)
+                    if len(sez_naj_potez) == 1:
+                        najboljsa_poteza = sez_naj_potez[0]
+                    elif len(sez_naj_potez) > 1:
+                        rand_st = int(random.random() * len(sez_naj_potez))
+                        najboljsa_poteza = sez_naj_potez[rand_st]
                 else:
                     # Minimiziramo
                     najboljsa_poteza = None
+                    sez_naj_potez = []
                     vrednost_najboljse = Minimax.NESKONCNO
-                    for (i,p) in enumerate(self.igra.tip.veljavne_poteze()[0]):
-                        if p == NEVELJAVNO:
-                            continue
-                        self.igra.povleci_potezo((i,p))
+                    for p in self.igra.veljavne_poteze():
+                        self.igra.povleci_potezo(p)
                         vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                         self.igra.razveljavi()
                         if vrednost < vrednost_najboljse:
-                            najboljsa_poteza = (i,p)
+                            sez_naj_potez = [p]
                             vrednost_najboljse = vrednost
+                        elif vrednost == vrednost_najboljse:
+                            sez_naj_potez.append(p)
+                    if len(sez_naj_potez) == 1:
+                        najboljsa_poteza = sez_naj_potez[0]
+                    elif len(sez_naj_potez) > 1:
+                        rand_st = int(random.random() * len(sez_naj_potez))
+                        najboljsa_poteza = sez_naj_potez[rand_st]
                 assert (najboljsa_poteza is not None), 'minimax: izračunana poteza je None'
                 return (najboljsa_poteza, vrednost_najboljse)
         else:
