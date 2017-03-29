@@ -36,8 +36,7 @@ class rand_alg():
 
     def rand_algoritem(self):
         (poteze, popout) = self.igra.tip.veljavne_poteze()
-        naredil_potezo = False
-        while not naredil_potezo:
+        while True:
             st1 = int(random.random() * 2)
             st2 = int(random.random() * 7)
             if popout:

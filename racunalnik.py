@@ -1,6 +1,7 @@
 import threading
 
 import rand_algoritem
+import minimax
 
 ########################
 ## IGRALEC RAČUNALNIK ##

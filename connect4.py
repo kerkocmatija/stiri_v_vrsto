@@ -5,6 +5,7 @@ from igra import *
 from clovek import *
 from racunalnik import *
 from rand_algoritem import *
+from minimax import *
 
 #########################
 ## UPORABNIŠKI VMESNIK ##
@@ -348,7 +349,7 @@ class Gui():
         else:
             # Tukaj je še potrebno nastaviti, da se bo izbral željen algoritem
             # TODO
-            self.igralec_r = Racunalnik(self, rand_alg())
+            self.igralec_r = Racunalnik(self, Minimax(3))
         self.zacni_igro(nova=True)
 
     def nastavi_igralca2(self, ime):
@@ -357,7 +358,7 @@ class Gui():
         else:
             # Tukaj je še potrebno nastaviti, da se bo izbral željen algoritem
             # TODO
-            self.igralec_y = Racunalnik(self, rand_alg())
+            self.igralec_y = Racunalnik(self, Minimax(3))
         self.zacni_igro(nova=True)
 
     def nastavi_tip(self, ime):
