@@ -8,6 +8,7 @@ from rand_algoritem import *
 from minimax import *
 from pop_logika import *
 from five_logika import *
+import random
 
 #########################
 ## UPORABNIŠKI VMESNIK ##
