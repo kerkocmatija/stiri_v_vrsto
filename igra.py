@@ -5,6 +5,7 @@
 ##from norm_logika import *
 ##from pop_logika import *
 ##from five_logika import *
+import random
 
 IGRALEC_R = 1 # Igralec, ki ima rdeče krogce
 IGRALEC_Y = 2 # Igralec, ki ima rumene krogce
